@@ -1,9 +1,10 @@
 import { Request, Response } from 'express'
+
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import Auth from './auth.model'
-import { sendOtpEmail } from '../../../utils/auth.transporter'
+import VendorAndNormalAuth from './vendorAndNormalAuth.model'
 import { AuthenticatedRequest } from '../../../middleware/middleware.interface'
+import { sendOtpEmail } from '../../../utils/auth.transporter'
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -12,7 +13,7 @@ export const register = async (req: Request, res: Response) => {
       res.status(400).json({ message: 'Email and password are required' })
       return
     }
-    if (await Auth.findOne({ email })) {
+    if (await VendorAndNormalAuth.findOne({ email })) {
       res.status(400).json({ message: 'User already exists' })
       return
     }
@@ -23,7 +24,10 @@ export const register = async (req: Request, res: Response) => {
       return
     }
     const hashedPassword = await bcrypt.hash(password, 10)
-    const user = await Auth.create({ email, password: hashedPassword })
+    const user = await VendorAndNormalAuth.create({
+      email,
+      password: hashedPassword,
+    })
 
     res.status(201).json({ message: 'User created successfully', user })
   } catch (error) {
@@ -38,7 +42,7 @@ export const login = async (req: Request, res: Response) => {
       res.status(400).json({ message: 'Email and password are required' })
       return
     }
-    const user = await Auth.findOne({ email })
+    const user = await VendorAndNormalAuth.findOne({ email })
     if (!user) {
       res.status(401).json({ message: 'Invalid email or password' })
       return
@@ -67,7 +71,7 @@ export const forgetPassword = async (req: Request, res: Response) => {
       return
     }
 
-    const user = await Auth.findOne({ email })
+    const user = await VendorAndNormalAuth.findOne({ email })
     if (!user) {
       res.status(404).json({ message: 'User not found' })
       return
@@ -91,7 +95,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
       res.status(400).json({ message: 'Email and OTP are required' })
       return
     }
-    const user = await Auth.findOne({ email })
+    const user = await VendorAndNormalAuth.findOne({ email })
     if (!user) {
       res.status(404).json({ message: 'User not found' })
       return
@@ -118,7 +122,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       res.status(400).json({ message: 'Email and Password are required' })
       return
     }
-    const user = await Auth.findOne({ email })
+    const user = await VendorAndNormalAuth.findOne({ email })
     if (!user) {
       res.status(404).json({ message: 'User not found' })
       return
@@ -151,7 +155,7 @@ export const changePassword = async (
       })
       return
     }
-    const user = await Auth.findOne({ email: req.user?.email })
+    const user = await VendorAndNormalAuth.findOne({ email: req.user?.email })
 
     if (!user) {
       res.status(404).json({ message: 'User not found' })

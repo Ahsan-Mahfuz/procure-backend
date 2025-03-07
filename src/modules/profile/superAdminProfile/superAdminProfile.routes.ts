@@ -16,7 +16,7 @@ superAdminProfileRouter.get(
 superAdminProfileRouter.patch(
   '/super-admin-patch-profile-settings',
   bearerMiddleware,
-  upload.single('profileImage'),
+  upload.fields([{ name: 'image', maxCount: 1 }]),
   updateSuperAdminProfile
 )
 

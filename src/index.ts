@@ -3,15 +3,14 @@ import express from 'express'
 
 import connectDB from './config/db'
 
-// import termsAndConditionsRouter from './modules/termsAndConditions/termsAndConditions.routes'
-// import profileSettingsRouter from './modules/profileSettings/profileSettings.routes'
 import path from 'path'
 
 import http from 'http'
 import { initializeSocket } from './utils/socket'
-import vendorAndNormalAuthRouter from './modules/auth/vendorAuth/vendorAndNormalAuth.routes'
+import vendorAndNormalAuthRouter from './modules/auth/vendorAndNormalAuth/vendorAndNormalAuth.routes'
 import authRouter from './modules/auth/superAdmin/auth.routes'
 import superAdminProfileRouter from './modules/profile/superAdminProfile/superAdminProfile.routes'
+import vendorAndNormalAuthProfileRouter from './modules/profile/vendorAndNormalAuthProfile/vendorAndNormalAuthProfile.routes'
 
 dotenv.config()
 
@@ -26,9 +25,7 @@ initializeSocket(server)
 app.use('/procure/auth', authRouter)
 app.use('/procure/auth', vendorAndNormalAuthRouter)
 app.use('/procure', superAdminProfileRouter)
-
-// app.use('/procure', termsAndConditionsRouter)
-// app.use('/procure', profileSettingsRouter)
+app.use('/procure', vendorAndNormalAuthProfileRouter)
 
 connectDB()
 const PORT: number = parseInt(process.env.PORT as string) || 5000

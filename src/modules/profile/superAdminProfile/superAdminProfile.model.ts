@@ -3,11 +3,11 @@ import { ISuperAdminProfile } from './superAdminProfile.interface'
 
 const superAdminProfileSchema = new mongoose.Schema<ISuperAdminProfile>(
   {
-    id: {
+    superUser: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       unique: true,
-      ref: 'Auth',
+      ref: 'SUPER ADMIN AUTH',
     },
     userName: {
       type: String,

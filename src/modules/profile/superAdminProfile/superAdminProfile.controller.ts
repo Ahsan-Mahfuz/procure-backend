@@ -14,7 +14,7 @@ export const getSuperAdminProfile = async (
       return
     }
     const superAdminProfile = await SuperAdminProfile.findOne({
-      id: req.user.id,
+      superUser: req.user.id,
     })
     if (!superAdminProfile) {
       res.status(404).json({ message: 'Profile not found' })
@@ -39,9 +39,14 @@ export const updateSuperAdminProfile = async (
 
     const { userName, contact, address } = req.body
 
-    const profileImage = req.file ? req.file.path : null
+    const profileImage =
+      req.files && (req.files as any).image
+        ? (req.files as any).image[0].path
+        : null
 
-    let userProfile = await SuperAdminProfile.findOne({ id: req.user.id })
+    let userProfile = await SuperAdminProfile.findOne({
+      superUser: req.user.id,
+    })
 
     if (userProfile) {
       if (profileImage && userProfile.image) {
@@ -51,13 +56,14 @@ export const updateSuperAdminProfile = async (
           fs.unlinkSync(oldImagePath)
         }
       }
-      userProfile.userName = userName
-      userProfile.contact = contact
-      userProfile.address = address
 
-      if (profileImage) {
-        userProfile.image = profileImage
-      }
+      Object.assign(userProfile, {
+        userName,
+        contact,
+        address,
+        image: profileImage || userProfile.image,
+      })
+
       await userProfile.save()
 
       res.status(200).json({
@@ -67,7 +73,7 @@ export const updateSuperAdminProfile = async (
       return
     } else {
       userProfile = await SuperAdminProfile.create({
-        id: req.user.id,
+        superUser: req.user.id,
         userName,
         contact,
         address,
