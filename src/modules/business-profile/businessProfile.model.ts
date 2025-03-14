@@ -45,6 +45,7 @@ const businessProfileSchema = new mongoose.Schema<IBusinessProfile>(
     },
     logoImage: {
       type: String,
+      required: true,
     },
     serviceImage: {
       type: String,

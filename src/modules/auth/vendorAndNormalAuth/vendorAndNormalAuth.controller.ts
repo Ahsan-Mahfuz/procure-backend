@@ -5,33 +5,110 @@ import jwt from 'jsonwebtoken'
 import VendorAndNormalAuth from './vendorAndNormalAuth.model'
 import { AuthenticatedRequest } from '../../../middleware/middleware.interface'
 import { sendOtpEmail } from '../../../utils/auth.transporter'
+import { Category } from '../../category/category.model'
+import mongoose from 'mongoose'
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body
-    if (!email || !password) {
-      res.status(400).json({ message: 'Email and password are required' })
+    const {
+      email,
+      password,
+      confirmPassword,
+      userName,
+      phoneNumber,
+      role,
+      serviceCategories,
+      experience,
+    } = req.body
+
+    if (
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !userName ||
+      !phoneNumber ||
+      !role
+    ) {
+      res.status(400).json({ message: 'All fields are required' })
       return
     }
+
     if (await VendorAndNormalAuth.findOne({ email })) {
       res.status(400).json({ message: 'User already exists' })
       return
     }
+
     if (password.length < 6) {
       res
         .status(400)
         .json({ message: 'Password must be at least 6 characters' })
       return
     }
+
+    if (password !== confirmPassword) {
+      res.status(400).json({ message: 'Passwords do not match' })
+      return
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10)
+
+    let categoryIds: mongoose.Types.ObjectId[] = []
+    if (role === 'VENDOR') {
+      if (!serviceCategories || !experience) {
+        res.status(400).json({ message: 'Vendor-specific fields are missing' })
+        return
+      }
+
+      const categories = await Category.find({
+        categoryName: { $in: serviceCategories },
+      }).select('_id')
+
+      if (categories.length !== serviceCategories.length) {
+        res.status(400).json({ message: 'One or more categories are invalid' })
+        return
+      }
+
+      categoryIds = categories.map(
+        (category) => category._id as mongoose.Types.ObjectId
+      )
+    }
+
     const user = await VendorAndNormalAuth.create({
       email,
       password: hashedPassword,
+      userName,
+      phoneNumber,
+      role,
+      serviceCategories: role === 'VENDOR' ? categoryIds : undefined,
+      experience: role === 'VENDOR' ? experience : undefined,
     })
 
-    res.status(201).json({ message: 'User created successfully', user })
+    const populatedUser = await VendorAndNormalAuth.findById(user._id).populate(
+      'serviceCategories',
+      'categoryName'
+    )
+
+    const userResponse = {
+      _id: populatedUser?._id,
+      email: populatedUser?.email,
+      password: populatedUser?.password,
+      userName: populatedUser?.userName,
+      phoneNumber: populatedUser?.phoneNumber,
+      role: populatedUser?.role,
+      serviceCategories: populatedUser?.serviceCategories,
+      experience: populatedUser?.experience,
+    }
+
+    res.status(201).json({
+      message: 'Registration successful',
+      user: userResponse,
+    })
   } catch (error) {
-    res.status(500).json({ message: 'Error creating user', error })
+    console.error('Registration error:', error)
+    res.status(500).json({
+      message: 'Error creating user',
+      error: error instanceof Error ? error.message : String(error),
+    })
   }
 }
 
@@ -182,5 +259,38 @@ export const logout = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'User logged out successfully' })
   } catch (error) {
     res.status(500).json({ message: 'Error logging out user', error })
+  }
+}
+
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1
+    const limit = parseInt(req.query.limit as string) || 10
+
+    const skip = (page - 1) * limit
+
+    const users = await VendorAndNormalAuth.find({}).skip(skip).limit(limit)
+
+    if (users.length === 0) {
+      res.status(404).json({ message: 'No users found' })
+      return
+    }
+
+    const totalUsers = await VendorAndNormalAuth.countDocuments({})
+
+    res.status(200).json({
+      users,
+      pagination: {
+        page,
+        limit,
+        totalUsers,
+        totalPages: Math.ceil(totalUsers / limit),
+      },
+    })
+
+    return
+  } catch (error) {
+    res.status(500).json({ message: 'Error getting all users', error })
+    return
   }
 }

@@ -25,13 +25,24 @@ const vendorAndNormalAuthSchema = new mongoose.Schema<IVendorAndNormalAuth>(
       type: String,
       required: true,
     },
-    confirmPassword: {
-      type: String,
-      required: true,
-    },
+
     phoneNumber: {
       type: String,
       required: true,
+    },
+    serviceCategories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: function (this: IVendorAndNormalAuth) {
+          return this.role === 'VENDOR'
+        },
+      },
+    ],
+    experience: {
+      type: String,
+      required: (this as any).role === 'VENDOR',
+      enum: ['<1', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'],
     },
   },
   {

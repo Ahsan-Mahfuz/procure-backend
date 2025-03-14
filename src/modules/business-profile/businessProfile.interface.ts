@@ -9,7 +9,7 @@ export interface IBusinessProfile {
   selectServices: string
   serviceCategories: string
   description: string
-  logoImage?: string
+  logoImage: string
   serviceImage?: string
   area?: string
   building?: string

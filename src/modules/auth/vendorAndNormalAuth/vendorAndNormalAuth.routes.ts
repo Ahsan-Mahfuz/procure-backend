@@ -2,6 +2,7 @@ import express from 'express'
 import {
   changePassword,
   forgetPassword,
+  getAllUsers,
   login,
   logout,
   register,
@@ -33,5 +34,6 @@ vendorAndNormalAuthRouter.post(
   bearerMiddleware,
   logout
 )
+vendorAndNormalAuthRouter.get('/get-all-user', getAllUsers)
 
 export default vendorAndNormalAuthRouter

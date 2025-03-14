@@ -4,6 +4,7 @@ export interface IVendorAndNormalAuth {
   resetOtpToken?: string
   role: string
   userName: string
-  confirmPassword: string
   phoneNumber: string
+  serviceCategories?: string[]
+  experience?: string
 }
