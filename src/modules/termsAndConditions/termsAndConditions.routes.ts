@@ -7,12 +7,10 @@ import {
 
 const termsAndConditionsRouter = express.Router()
 
-termsAndConditionsRouter.get(
-  '/get-terms-and-conditions',
-  getTermsAndConditions
-)
+termsAndConditionsRouter.get('/get-terms-and-conditions', getTermsAndConditions)
 termsAndConditionsRouter.post(
   '/post-terms-and-conditions',
+  bearerMiddleware,
   postTermsAndConditions
 )
 

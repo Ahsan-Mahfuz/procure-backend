@@ -1,3 +1,3 @@
 export interface ITermsAndConditions {
-  termsAndConditions: String
+  termsAndConditions?: String
 }

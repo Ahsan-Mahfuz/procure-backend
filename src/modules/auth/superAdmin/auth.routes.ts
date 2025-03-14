@@ -3,6 +3,7 @@ import {
   changePassword,
   forgetPassword,
   login,
+  logout,
   register,
   resetPassword,
   verifyOtp,
@@ -21,5 +22,6 @@ authRouter.post(
   bearerMiddleware,
   changePassword
 )
+authRouter.post('/super-admin/logout', bearerMiddleware, logout)
 
 export default authRouter

@@ -15,6 +15,24 @@ const vendorAndNormalAuthSchema = new mongoose.Schema<IVendorAndNormalAuth>(
     resetOtpToken: {
       type: String,
     },
+    role: {
+      type: String,
+      required: true,
+      enum: ['VENDOR', 'NORMAL_USER'],
+      default: 'NORMAL_USER',
+    },
+    userName: {
+      type: String,
+      required: true,
+    },
+    confirmPassword: {
+      type: String,
+      required: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -22,7 +40,7 @@ const vendorAndNormalAuthSchema = new mongoose.Schema<IVendorAndNormalAuth>(
 )
 
 export const VendorAndNormalAuth = mongoose.model(
-  'VENDOR AND NORMAL AUTH',
+  'VendorAndNormalAuth',
   vendorAndNormalAuthSchema
 )
 

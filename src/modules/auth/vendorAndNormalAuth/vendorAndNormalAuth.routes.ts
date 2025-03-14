@@ -3,6 +3,7 @@ import {
   changePassword,
   forgetPassword,
   login,
+  logout,
   register,
   resetPassword,
   verifyOtp,
@@ -26,6 +27,11 @@ vendorAndNormalAuthRouter.post(
   '/vendorOrNormalUser/change-password',
   bearerMiddleware,
   changePassword
+)
+vendorAndNormalAuthRouter.post(
+  '/vendorOrNormalUser/logout',
+  bearerMiddleware,
+  logout
 )
 
 export default vendorAndNormalAuthRouter

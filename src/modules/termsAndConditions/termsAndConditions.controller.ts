@@ -1,8 +1,23 @@
 import { Request, Response } from 'express'
 import TermsAndConditions from './termsAndConditions.model'
+import { AuthenticatedRequest } from '../../middleware/middleware.interface'
+import Auth from '../auth/superAdmin/auth.model'
 
-export const postTermsAndConditions = async (req: Request, res: Response) => {
+export const postTermsAndConditions = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
   try {
+    if (req.user?.email) {
+      const user = await Auth.findOne({ email: req.user.email })
+      if (!user) {
+        res
+          .status(404)
+          .json({ message: 'You are not authorized to perform this action' })
+        return
+      }
+    }
+
     const { termsAndConditions } = req.body
 
     const existingTerms = await TermsAndConditions.findOne({})

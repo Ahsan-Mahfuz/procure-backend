@@ -30,6 +30,6 @@ const authSchema = new mongoose.Schema<IAuth>(
   }
 )
 
-export const Auth = mongoose.model('SUPER ADMIN AUTH', authSchema)
+export const Auth = mongoose.model('Auth', authSchema)
 
 export default Auth
